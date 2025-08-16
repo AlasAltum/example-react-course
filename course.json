@@ -1,0 +1,45 @@
+{
+  "id": "react-fundamentals-course",
+  "title": "React Fundamentals: From Zero to Hero",
+  "description": "A comprehensive microlesson-based course for learning React from the ground up. Master components, hooks, state management, and build real applications.",
+  "author": "Microlesson Team",
+  "tags": ["react", "javascript", "frontend", "web-development", "components", "hooks", "jsx"],
+  "category": "programming",
+  "difficulty": "beginner",
+  "prerequisites": [
+    "Basic HTML and CSS knowledge",
+    "JavaScript fundamentals (ES6+)",
+    "Understanding of npm/yarn"
+  ],
+  "totalMicrolessons": 12,
+  "estimatedDuration": "8 hours",
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-16",
+  "courseRepository": "https://github.com/your-username/react-fundamentals-course",
+  "modules": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "description": "Introduction to React and setting up your development environment",
+      "lessons": [1, 2, 3]
+    },
+    {
+      "id": "core-concepts",
+      "title": "Core Concepts",
+      "description": "Learn the fundamental building blocks of React applications",
+      "lessons": [4, 5, 6, 7]
+    },
+    {
+      "id": "advanced-concepts",
+      "title": "Advanced Concepts",
+      "description": "Deep dive into hooks, context, and performance optimization",
+      "lessons": [8, 9, 10]
+    },
+    {
+      "id": "real-world-app",
+      "title": "Real-World Application",
+      "description": "Build, test, and deploy a complete React application",
+      "lessons": [11, 12]
+    }
+  ]
+}

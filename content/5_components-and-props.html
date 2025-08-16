@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components and Props</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .exercise {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .exercise h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison > div {
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .before {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .after {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .tip {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 5 of 12</div>
+        <h1>Components and Props</h1>
+        <div class="lesson-duration">⏱️ 35 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Understand what props are and how they work</li>
+            <li>Learn to pass data between components</li>
+            <li>Master prop destructuring and default values</li>
+            <li>Understand prop types and validation</li>
+            <li>Build reusable, configurable components</li>
+        </ul>
+    </div>
+
+    <h2>What are Props?</h2>
+    <p>Props (short for "properties") are how you pass data from parent components to child components in React. Think of props as function arguments - they allow you to customize how a component behaves and what it displays.</p>
+
+    <div class="highlight">
+        <strong>💡 Key Concept:</strong> Props are read-only! A component should never modify its own props. This keeps your application predictable and easier to debug.
+    </div>
+
+    <h2>Basic Props Usage</h2>
+    <p>Let's start with a simple example of passing props to a component:</p>
+
+    <div class="code-block">
+// Child component that receives props
+function Greeting(props) {
+  return &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;;
+}
+
+// Parent component that passes props
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Greeting name="Alice" /&gt;
+      &lt;Greeting name="Bob" /&gt;
+      &lt;Greeting name="Charlie" /&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Destructuring Props</h2>
+    <p>Instead of using <code>props.name</code>, you can destructure props to make your code cleaner:</p>
+
+    <div class="comparison">
+        <div class="before">
+            <h4>Without Destructuring</h4>
+            <div class="code-block">
+function UserCard(props) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{props.name}&lt;/h2&gt;
+      &lt;p&gt;Age: {props.age}&lt;/p&gt;
+      &lt;p&gt;Email: {props.email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+            </div>
+        </div>
+        <div class="after">
+            <h4>With Destructuring</h4>
+            <div class="code-block">
+function UserCard({ name, age, email }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{name}&lt;/h2&gt;
+      &lt;p&gt;Age: {age}&lt;/p&gt;
+      &lt;p&gt;Email: {email}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+            </div>
+        </div>
+    </div>
+
+    <h2>Different Types of Props</h2>
+    <p>You can pass various types of data as props:</p>
+
+    <div class="code-block">
+function FlexibleComponent({ 
+  title,           // String
+  count,           // Number
+  isVisible,       // Boolean
+  items,           // Array
+  user,            // Object
+  onClick          // Function
+}) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{title}&lt;/h2&gt;
+      {isVisible && (
+        &lt;div&gt;
+          &lt;p&gt;Count: {count}&lt;/p&gt;
+          &lt;p&gt;User: {user.name} ({user.email})&lt;/p&gt;
+          &lt;ul&gt;
+            {items.map((item, index) =&gt; (
+              &lt;li key={index}&gt;{item}&lt;/li&gt;
+            ))}
+          &lt;/ul&gt;
+          &lt;button onClick={onClick}&gt;Click me&lt;/button&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+// Using the component
+function App() {
+  const handleClick = () => {
+    alert('Button clicked!');
+  };
+  
+  const userData = {
+    name: 'John Doe',
+    email: 'john@example.com'
+  };
+  
+  return (
+    &lt;FlexibleComponent
+      title="My Component"
+      count={42}
+      isVisible={true}
+      items={['Apple', 'Banana', 'Cherry']}
+      user={userData}
+      onClick={handleClick}
+    /&gt;
+  );
+}
+    </div>
+
+    <h2>Default Props</h2>
+    <p>You can provide default values for props in case they're not passed:</p>
+
+    <div class="code-block">
+// Method 1: Default parameters
+function Button({ text = 'Click me', color = 'blue', size = 'medium' }) {
+  return (
+    &lt;button 
+      style={{
+        backgroundColor: color,
+        padding: size === 'large' ? '15px 30px' : '10px 20px',
+        fontSize: size === 'large' ? '18px' : '14px'
+      }}
+    &gt;
+      {text}
+    &lt;/button&gt;
+  );
+}
+
+// Method 2: defaultProps (older approach)
+function OldStyleButton({ text, color, size }) {
+  return (
+    &lt;button 
+      style={{
+        backgroundColor: color,
+        padding: size === 'large' ? '15px 30px' : '10px 20px'
+      }}
+    &gt;
+      {text}
+    &lt;/button&gt;
+  );
+}
+
+OldStyleButton.defaultProps = {
+  text: 'Click me',
+  color: 'blue',
+  size: 'medium'
+};
+    </div>
+
+    <h2>Props Validation with PropTypes</h2>
+    <p>You can validate props to catch bugs early in development:</p>
+
+    <div class="code-block">
+import PropTypes from 'prop-types';
+
+function ProductCard({ name, price, category, inStock, onAddToCart }) {
+  return (
+    &lt;div className="product-card"&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;Price: ${price}&lt;/p&gt;
+      &lt;p&gt;Category: {category}&lt;/p&gt;
+      {inStock ? (
+        &lt;button onClick={onAddToCart}&gt;Add to Cart&lt;/button&gt;
+      ) : (
+        &lt;p&gt;Out of Stock&lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+// Prop validation
+ProductCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  price: PropTypes.number.isRequired,
+  category: PropTypes.string,
+  inStock: PropTypes.bool,
+  onAddToCart: PropTypes.func
+};
+
+// Default props
+ProductCard.defaultProps = {
+  category: 'General',
+  inStock: true,
+  onAddToCart: () => {}
+};
+    </div>
+
+    <div class="tip">
+        <strong>💡 Pro Tip:</strong> PropTypes are only checked in development mode and help you catch bugs early. They're removed in production builds for performance.
+    </div>
+
+    <h2>Passing Props to Child Components</h2>
+    <p>You can pass props down through multiple levels of components:</p>
+
+    <div class="code-block">
+// Grandparent component
+function App() {
+  const user = {
+    name: 'Alice Johnson',
+    avatar: 'https://example.com/avatar.jpg',
+    isOnline: true
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;Header user={user} /&gt;
+      &lt;MainContent user={user} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Parent component
+function Header({ user }) {
+  return (
+    &lt;header&gt;
+      &lt;UserProfile user={user} /&gt;
+      &lt;Navigation /&gt;
+    &lt;/header&gt;
+  );
+}
+
+// Child component
+function UserProfile({ user }) {
+  return (
+    &lt;div className="user-profile"&gt;
+      &lt;img src={user.avatar} alt={user.name} /&gt;
+      &lt;span&gt;{user.name}&lt;/span&gt;
+      &lt;span className={user.isOnline ? 'online' : 'offline'}&gt;
+        {user.isOnline ? '🟢' : '🔴'}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>The Children Prop</h2>
+    <p>React provides a special prop called <code>children</code> that contains the content between component tags:</p>
+
+    <div class="code-block">
+// Wrapper component that uses children
+function Card({ title, children }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;div className="card-header"&gt;
+        &lt;h3&gt;{title}&lt;/h3&gt;
+      &lt;/div&gt;
+      &lt;div className="card-body"&gt;
+        {children}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Using the Card component
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Card title="Welcome"&gt;
+        &lt;p&gt;This is the card content!&lt;/p&gt;
+        &lt;button&gt;Learn More&lt;/button&gt;
+      &lt;/Card&gt;
+      
+      &lt;Card title="Features"&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Easy to use&lt;/li&gt;
+          &lt;li&gt;Fast performance&lt;/li&gt;
+          &lt;li&gt;Great support&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/Card&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <div class="exercise">
+        <h3>🏋️ Exercise: Build a Reusable Profile Card</h3>
+        <p>Create a ProfileCard component that displays user information and can be customized with props:</p>
+        
+        <div class="code-block">
+function ProfileCard({ 
+  name, 
+  title, 
+  avatar, 
+  bio, 
+  skills = [], 
+  isOnline = false,
+  onConnect 
+}) {
+  return (
+    &lt;div style={{
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      padding: '20px',
+      margin: '10px',
+      maxWidth: '300px',
+      textAlign: 'center'
+    }}&gt;
+      &lt;img 
+        src={avatar} 
+        alt={name}
+        style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '50%',
+          marginBottom: '10px'
+        }}
+      /&gt;
+      &lt;h3&gt;{name} {isOnline && '🟢'}&lt;/h3&gt;
+      &lt;p style={{ color: '#666' }}&gt;{title}&lt;/p&gt;
+      &lt;p&gt;{bio}&lt;/p&gt;
+      
+      {skills.length &gt; 0 && (
+        &lt;div&gt;
+          &lt;h4&gt;Skills:&lt;/h4&gt;
+          &lt;div&gt;
+            {skills.map((skill, index) =&gt; (
+              &lt;span 
+                key={index}
+                style={{
+                  background: '#e0e0e0',
+                  padding: '4px 8px',
+                  margin: '2px',
+                  borderRadius: '12px',
+                  fontSize: '12px'
+                }}
+              &gt;
+                {skill}
+              &lt;/span&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      )}
+      
+      &lt;button 
+        onClick={onConnect}
+        style={{
+          marginTop: '15px',
+          padding: '8px 16px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      &gt;
+        Connect
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Usage example
+function App() {
+  const handleConnect = (name) => {
+    alert(`Connecting with ${name}!`);
+  };
+  
+  return (
+    &lt;div style={{ display: 'flex', flexWrap: 'wrap' }}&gt;
+      &lt;ProfileCard
+        name="Sarah Chen"
+        title="Frontend Developer"
+        avatar="https://via.placeholder.com/80"
+        bio="Passionate about creating beautiful user experiences"
+        skills={['React', 'JavaScript', 'CSS']}
+        isOnline={true}
+        onConnect={() =&gt; handleConnect('Sarah Chen')}
+      /&gt;
+      
+      &lt;ProfileCard
+        name="Mike Johnson"
+        title="Backend Developer"
+        avatar="https://via.placeholder.com/80"
+        bio="Building scalable server-side applications"
+        skills={['Node.js', 'Python', 'MongoDB']}
+        isOnline={false}
+        onConnect={() =&gt; handleConnect('Mike Johnson')}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+        </div>
+        
+        <p><strong>Your Task:</strong> Copy this code and experiment with:</p>
+        <ul>
+            <li>Adding more profile cards with different data</li>
+            <li>Customizing the styling based on props</li>
+            <li>Adding more interactive features</li>
+        </ul>
+    </div>
+
+    <h2>Props Best Practices</h2>
+    <ul>
+        <li><strong>Keep props simple:</strong> Pass only the data that the component needs</li>
+        <li><strong>Use descriptive names:</strong> <code>isLoading</code> is better than <code>loading</code></li>
+        <li><strong>Avoid prop drilling:</strong> Don't pass props through many levels unnecessarily</li>
+        <li><strong>Use PropTypes:</strong> Validate your props to catch errors early</li>
+        <li><strong>Provide defaults:</strong> Use default parameters for optional props</li>
+        <li><strong>Keep components pure:</strong> Same props should always produce the same output</li>
+    </ul>
+
+    <div class="highlight">
+        <strong>🎯 Remember:</strong> Props flow down from parent to child components. If you need to send data up from child to parent, you'll use callback functions (which we'll cover in the next lesson about state and events).
+    </div>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: State and Event Handling</h3>
+        <p>Now that you understand props, we'll learn about state - how components can manage and update their own data, and how to handle user interactions.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State and Event Handling</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .exercise {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .exercise h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 6 of 12</div>
+        <h1>State and Event Handling</h1>
+        <div class="lesson-duration">⏱️ 40 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Understand what state is and why it's important</li>
+            <li>Learn to use the useState hook</li>
+            <li>Handle user events and update state</li>
+            <li>Understand the difference between props and state</li>
+            <li>Build interactive components with state management</li>
+        </ul>
+    </div>
+
+    <h2>What is State?</h2>
+    <p>State is data that can change over time in your component. Unlike props (which are passed down from parent components), state is managed within the component itself. When state changes, React automatically re-renders the component to reflect the new data.</p>
+
+    <div class="highlight">
+        <strong>💡 Key Difference:</strong> Props are like function parameters (read-only), while state is like variables inside a function (can be changed).
+    </div>
+
+    <h2>The useState Hook</h2>
+    <p>The <code>useState</code> hook is the most common way to add state to functional components:</p>
+
+    <div class="code-block">
+import React, { useState } from 'react';
+
+function Counter() {
+  // useState returns an array with two elements:
+  // 1. The current state value
+  // 2. A function to update the state
+  const [count, setCount] = useState(0);
+  
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Different Types of State</h2>
+    <p>You can store various types of data in state:</p>
+
+    <div class="code-block">
+function StateExamples() {
+  // String state
+  const [name, setName] = useState('');
+  
+  // Number state
+  const [age, setAge] = useState(0);
+  
+  // Boolean state
+  const [isVisible, setIsVisible] = useState(true);
+  
+  // Array state
+  const [items, setItems] = useState(['apple', 'banana']);
+  
+  // Object state
+  const [user, setUser] = useState({
+    name: 'John',
+    email: 'john@example.com'
+  });
+  
+  return (
+    &lt;div&gt;
+      &lt;input 
+        value={name}
+        onChange={(e) =&gt; setName(e.target.value)}
+        placeholder="Enter your name"
+      /&gt;
+      
+      &lt;button onClick={() =&gt; setAge(age + 1)}&gt;
+        Age: {age}
+      &lt;/button&gt;
+      
+      &lt;button onClick={() =&gt; setIsVisible(!isVisible)}&gt;
+        {isVisible ? 'Hide' : 'Show'}
+      &lt;/button&gt;
+      
+      {isVisible && &lt;p&gt;This content is visible!&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Event Handling</h2>
+    <p>React events are similar to HTML events but use camelCase naming and are wrapped in SyntheticEvent objects:</p>
+
+    <div class="code-block">
+function EventHandlingExample() {
+  const [message, setMessage] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  
+  const handleClick = () => {
+    setMessage('Button was clicked!');
+  };
+  
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+  
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent form submission
+    setMessage(`Form submitted with: ${inputValue}`);
+    setInputValue(''); // Clear input
+  };
+  
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      setMessage('Enter key pressed!');
+    }
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;button onClick={handleClick}&gt;Click me&lt;/button&gt;
+      
+      &lt;form onSubmit={handleSubmit}&gt;
+        &lt;input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
+          placeholder="Type something..."
+        /&gt;
+        &lt;button type="submit"&gt;Submit&lt;/button&gt;
+      &lt;/form&gt;
+      
+      {message && &lt;p&gt;{message}&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Updating State Correctly</h2>
+    <p>When updating state, especially objects and arrays, you need to create new copies rather than modifying the existing state:</p>
+
+    <div class="warning">
+        <strong>⚠️ Important:</strong> Never mutate state directly! Always use the setter function returned by useState.
+    </div>
+
+    <div class="code-block">
+function StateUpdateExamples() {
+  const [user, setUser] = useState({
+    name: 'John',
+    age: 25,
+    email: 'john@example.com'
+  });
+  
+  const [todos, setTodos] = useState([
+    { id: 1, text: 'Learn React', completed: false },
+    { id: 2, text: 'Build a project', completed: false }
+  ]);
+  
+  // ❌ Wrong - mutating state directly
+  const updateUserWrong = () => {
+    user.age = user.age + 1; // Don't do this!
+    setUser(user);
+  };
+  
+  // ✅ Correct - creating a new object
+  const updateUserCorrect = () => {
+    setUser({
+      ...user, // Spread existing properties
+      age: user.age + 1 // Update specific property
+    });
+  };
+  
+  // ✅ Correct - updating arrays
+  const addTodo = () => {
+    const newTodo = {
+      id: Date.now(),
+      text: 'New todo',
+      completed: false
+    };
+    setTodos([...todos, newTodo]); // Create new array
+  };
+  
+  const toggleTodo = (id) => {
+    setTodos(todos.map(todo =&gt; 
+      todo.id === id 
+        ? { ...todo, completed: !todo.completed }
+        : todo
+    ));
+  };
+  
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(todo =&gt; todo.id !== id));
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;User: {user.name}, Age: {user.age}&lt;/h3&gt;
+      &lt;button onClick={updateUserCorrect}&gt;
+        Increase Age
+      &lt;/button&gt;
+      
+      &lt;h3&gt;Todos:&lt;/h3&gt;
+      &lt;button onClick={addTodo}&gt;Add Todo&lt;/button&gt;
+      &lt;ul&gt;
+        {todos.map(todo =&gt; (
+          &lt;li key={todo.id}&gt;
+            &lt;span 
+              style={{
+                textDecoration: todo.completed ? 'line-through' : 'none'
+              }}
+              onClick={() =&gt; toggleTodo(todo.id)}
+            &gt;
+              {todo.text}
+            &lt;/span&gt;
+            &lt;button onClick={() =&gt; deleteTodo(todo.id)}&gt;
+              Delete
+            &lt;/button&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Controlled vs Uncontrolled Components</h2>
+    <p>In React, form elements can be controlled (React manages the value) or uncontrolled (DOM manages the value):</p>
+
+    <div class="code-block">
+// Controlled component (recommended)
+function ControlledForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Form data:', formData);
+  };
+  
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="text"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name"
+      /&gt;
+      
+      &lt;input
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="Email"
+      /&gt;
+      
+      &lt;textarea
+        name="message"
+        value={formData.message}
+        onChange={handleChange}
+        placeholder="Message"
+      /&gt;
+      
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+    </div>
+
+    <div class="exercise">
+        <h3>🏋️ Exercise: Build a Shopping Cart</h3>
+        <p>Create a shopping cart component that manages a list of products and allows adding/removing items:</p>
+        
+        <div class="code-block">
+function ShoppingCart() {
+  const [cart, setCart] = useState([]);
+  const [products] = useState([
+    { id: 1, name: 'Laptop', price: 999 },
+    { id: 2, name: 'Phone', price: 699 },
+    { id: 3, name: 'Tablet', price: 399 }
+  ]);
+  
+  const addToCart = (product) => {
+    const existingItem = cart.find(item =&gt; item.id === product.id);
+    
+    if (existingItem) {
+      setCart(cart.map(item =&gt;
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
+  };
+  
+  const removeFromCart = (productId) => {
+    setCart(cart.filter(item =&gt; item.id !== productId));
+  };
+  
+  const updateQuantity = (productId, newQuantity) => {
+    if (newQuantity === 0) {
+      removeFromCart(productId);
+    } else {
+      setCart(cart.map(item =&gt;
+        item.id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
+      ));
+    }
+  };
+  
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) =&gt; total + (item.price * item.quantity), 0);
+  };
+  
+  return (
+    &lt;div style={{ display: 'flex', gap: '20px' }}&gt;
+      &lt;div&gt;
+        &lt;h3&gt;Products&lt;/h3&gt;
+        {products.map(product =&gt; (
+          &lt;div key={product.id} style={{ 
+            border: '1px solid #ccc', 
+            padding: '10px', 
+            margin: '10px 0' 
+          }}&gt;
+            &lt;h4&gt;{product.name}&lt;/h4&gt;
+            &lt;p&gt;${product.price}&lt;/p&gt;
+            &lt;button onClick={() =&gt; addToCart(product)}&gt;
+              Add to Cart
+            &lt;/button&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+      
+      &lt;div&gt;
+        &lt;h3&gt;Shopping Cart&lt;/h3&gt;
+        {cart.length === 0 ? (
+          &lt;p&gt;Cart is empty&lt;/p&gt;
+        ) : (
+          &lt;div&gt;
+            {cart.map(item =&gt; (
+              &lt;div key={item.id} style={{ 
+                border: '1px solid #ccc', 
+                padding: '10px', 
+                margin: '10px 0' 
+              }}&gt;
+                &lt;h4&gt;{item.name}&lt;/h4&gt;
+                &lt;p&gt;${item.price} x {item.quantity}&lt;/p&gt;
+                &lt;button onClick={() =&gt; updateQuantity(item.id, item.quantity - 1)}&gt;
+                  -
+                &lt;/button&gt;
+                &lt;span style={{ margin: '0 10px' }}&gt;{item.quantity}&lt;/span&gt;
+                &lt;button onClick={() =&gt; updateQuantity(item.id, item.quantity + 1)}&gt;
+                  +
+                &lt;/button&gt;
+                &lt;button onClick={() =&gt; removeFromCart(item.id)}&gt;
+                  Remove
+                &lt;/button&gt;
+              &lt;/div&gt;
+            ))}
+            &lt;h3&gt;Total: ${getTotalPrice()}&lt;/h3&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+        </div>
+        
+        <p><strong>Your Task:</strong> Copy this code and experiment with:</p>
+        <ul>
+            <li>Adding more products</li>
+            <li>Implementing a clear cart function</li>
+            <li>Adding product images and descriptions</li>
+            <li>Implementing a checkout process</li>
+        </ul>
+    </div>
+
+    <h2>State Best Practices</h2>
+    <ul>
+        <li><strong>Keep state minimal:</strong> Only store what you need in state</li>
+        <li><strong>Don't duplicate props in state:</strong> If data comes from props, don't copy it to state</li>
+        <li><strong>Use multiple state variables:</strong> Split unrelated state into separate useState calls</li>
+        <li><strong>Update state immutably:</strong> Always create new objects/arrays when updating</li>
+        <li><strong>Use functional updates:</strong> When new state depends on previous state</li>
+    </ul>
+
+    <div class="code-block">
+// Functional state updates
+const [count, setCount] = useState(0);
+
+// ✅ Good - functional update
+const increment = () => {
+  setCount(prevCount =&gt; prevCount + 1);
+};
+
+// ❌ Potentially problematic in some cases
+const incrementDirect = () => {
+  setCount(count + 1);
+};
+    </div>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: Conditional Rendering and Lists</h3>
+        <p>Now that you understand state and events, we'll explore advanced techniques for conditionally rendering content and efficiently working with lists of data.</p>
+    </div>
+</body>
+</html>

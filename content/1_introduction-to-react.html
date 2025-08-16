@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to React</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 1 of 12</div>
+        <h1>Introduction to React</h1>
+        <div class="lesson-duration">⏱️ 15 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Understand what React is and why it's popular</li>
+            <li>Learn about the virtual DOM concept</li>
+            <li>Explore React's component-based architecture</li>
+            <li>See React in action with a simple example</li>
+        </ul>
+    </div>
+
+    <h2>What is React?</h2>
+    <p>React is a powerful JavaScript library for building user interfaces, particularly web applications. Created by Facebook (now Meta) in 2013, React has become one of the most popular frontend frameworks in the world.</p>
+
+    <h3>Key Features of React</h3>
+    <ul>
+        <li><strong>Component-Based:</strong> Build encapsulated components that manage their own state</li>
+        <li><strong>Declarative:</strong> Describe what your UI should look like, not how to achieve it</li>
+        <li><strong>Virtual DOM:</strong> Efficient updates through a virtual representation of the DOM</li>
+        <li><strong>Learn Once, Write Anywhere:</strong> Use React for web, mobile (React Native), and more</li>
+    </ul>
+
+    <h2>The Virtual DOM</h2>
+    <p>One of React's most important innovations is the Virtual DOM. Instead of directly manipulating the browser's DOM (which is slow), React creates a virtual representation in memory.</p>
+
+    <div class="highlight">
+        <strong>💡 Key Insight:</strong> When your data changes, React compares the new virtual DOM with the previous version, calculates the minimum changes needed, and updates only those parts of the real DOM. This process is called "reconciliation."
+    </div>
+
+    <img src="../img/virtual-dom-diagram.png" alt="Virtual DOM Process Diagram" />
+
+    <h2>Component-Based Architecture</h2>
+    <p>React applications are built using components - reusable pieces of code that return HTML-like syntax called JSX. Think of components as custom HTML elements that you can create and reuse.</p>
+
+    <div class="code-block">
+// A simple React component
+function Welcome(props) {
+  return &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;;
+}
+
+// Using the component
+&lt;Welcome name="Sarah" /&gt;
+    </div>
+
+    <h2>Your First Look at React Code</h2>
+    <p>Here's a simple React application that displays a greeting and a counter:</p>
+
+    <div class="code-block">
+import React, { useState } from 'react';
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Welcome to React!&lt;/h1&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;
+    </div>
+
+    <p>Don't worry if this looks complex right now! We'll break down every part of this code in the upcoming lessons.</p>
+
+    <h2>Why Choose React?</h2>
+    <ul>
+        <li><strong>Popular & Well-Supported:</strong> Huge community, extensive ecosystem</li>
+        <li><strong>Performance:</strong> Virtual DOM and efficient rendering</li>
+        <li><strong>Flexibility:</strong> Can be integrated into existing projects gradually</li>
+        <li><strong>Developer Experience:</strong> Great tooling and debugging capabilities</li>
+        <li><strong>Job Market:</strong> High demand for React developers</li>
+    </ul>
+
+    <h2>What We'll Build Together</h2>
+    <p>Throughout this course, we'll build several projects including:</p>
+    <ul>
+        <li>A personal greeting component</li>
+        <li>A dynamic counter application</li>
+        <li>A todo list with full CRUD operations</li>
+        <li>A weather dashboard with API integration</li>
+    </ul>
+
+    <div class="highlight">
+        <strong>🚀 Ready to Start?</strong> In the next lesson, we'll set up your development environment and create your first React application. Make sure you have Node.js installed on your computer!
+    </div>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: Setting Up Your Development Environment</h3>
+        <p>Learn how to install the necessary tools and create your first React project using Create React App.</p>
+    </div>
+</body>
+</html>
