@@ -1,0 +1,64 @@
+{
+  "name": "react-fundamentals-course",
+  "version": "1.0.0",
+  "description": "A comprehensive microlesson-based course for learning React from the ground up",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "serve": "serve -s build",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
+  },
+  "keywords": [
+    "react",
+    "javascript",
+    "frontend",
+    "web-development",
+    "tutorial",
+    "course",
+    "microlessons",
+    "components",
+    "hooks",
+    "jsx"
+  ],
+  "author": "Microlesson Team",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "react-scripts": "5.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
+    "eslint": "^8.36.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "serve": "^14.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/react-fundamentals-course.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/react-fundamentals-course/issues"
+  },
+  "homepage": "https://github.com/your-username/react-fundamentals-course#readme"
+}

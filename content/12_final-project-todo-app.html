@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Project: Todo Application</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #d4edda;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .feature-list {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .feature-list h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .congratulations {
+            background: #d4edda;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid #28a745;
+        }
+        .next-steps {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 12 of 12 - Final Project</div>
+        <h1>Building a Complete Todo Application</h1>
+        <div class="lesson-duration">⏱️ 60 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Project Objectives</h3>
+        <ul>
+            <li>Build a complete React application from scratch</li>
+            <li>Implement all the concepts learned throughout the course</li>
+            <li>Create a production-ready todo application</li>
+            <li>Add advanced features like filtering, persistence, and animations</li>
+            <li>Deploy your application to the web</li>
+        </ul>
+    </div>
+
+    <h2>Project Overview</h2>
+    <p>Congratulations on reaching the final lesson! 🎉 In this capstone project, you'll build a comprehensive todo application that demonstrates all the React concepts you've learned throughout this course.</p>
+
+    <div class="feature-list">
+        <h3>🚀 Features We'll Implement</h3>
+        <ul>
+            <li><strong>Add/Edit/Delete Tasks:</strong> Full CRUD operations</li>
+            <li><strong>Task Categories:</strong> Organize tasks by category</li>
+            <li><strong>Priority Levels:</strong> High, medium, low priority tasks</li>
+            <li><strong>Due Dates:</strong> Set and track task deadlines</li>
+            <li><strong>Filtering & Search:</strong> Find tasks quickly</li>
+            <li><strong>Local Storage:</strong> Persist data between sessions</li>
+            <li><strong>Dark/Light Theme:</strong> User preference settings</li>
+            <li><strong>Statistics:</strong> Track productivity metrics</li>
+            <li><strong>Responsive Design:</strong> Works on all devices</li>
+        </ul>
+    </div>
+
+    <h2>Complete Todo Application Code</h2>
+    <p>Here's the complete implementation of our todo application:</p>
+
+    <div class="code-block">
+import React, { useState, useEffect, useContext, createContext } from 'react';
+import './TodoApp.css';
+
+// Context for theme management
+const ThemeContext = createContext();
+
+// Custom hook for local storage
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() =&gt; {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) =&gt; {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
+
+  return [storedValue, setValue];
+}
+
+// Theme Provider Component
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useLocalStorage('theme', 'light');
+  
+  useEffect(() =&gt; {
+    document.body.className = theme;
+  }, [theme]);
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      {children}
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// Header Component
+function Header() {
+  const { theme, setTheme } = useContext(ThemeContext);
+  
+  return (
+    &lt;header className="app-header"&gt;
+      &lt;h1&gt;📝 My Todo App&lt;/h1&gt;
+      &lt;button 
+        className="theme-toggle"
+        onClick={() =&gt; setTheme(theme === 'light' ? 'dark' : 'light')}
+      &gt;
+        {theme === 'light' ? '🌙' : '☀️'}
+      &lt;/button&gt;
+    &lt;/header&gt;
+  );
+}
+
+// Add Task Form Component
+function AddTaskForm({ onAddTask, categories }) {
+  const [task, setTask] = useState({
+    title: '',
+    category: 'personal',
+    priority: 'medium',
+    dueDate: ''
+  });
+
+  const handleSubmit = (e) =&gt; {
+    e.preventDefault();
+    if (task.title.trim()) {
+      onAddTask({
+        ...task,
+        id: Date.now(),
+        completed: false,
+        createdAt: new Date().toISOString()
+      });
+      setTask({ title: '', category: 'personal', priority: 'medium', dueDate: '' });
+    }
+  };
+
+  return (
+    &lt;form className="add-task-form" onSubmit={handleSubmit}&gt;
+      &lt;div className="form-row"&gt;
+        &lt;input
+          type="text"
+          placeholder="What needs to be done?"
+          value={task.title}
+          onChange={(e) =&gt; setTask({ ...task, title: e.target.value })}
+          className="task-input"
+        /&gt;
+        &lt;button type="submit" className="add-button"&gt;Add Task&lt;/button&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="form-row"&gt;
+        &lt;select
+          value={task.category}
+          onChange={(e) =&gt; setTask({ ...task, category: e.target.value })}
+          className="form-select"
+        &gt;
+          {categories.map(cat =&gt; (
+            &lt;option key={cat.id} value={cat.id}&gt;{cat.name}&lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+        
+        &lt;select
+          value={task.priority}
+          onChange={(e) =&gt; setTask({ ...task, priority: e.target.value })}
+          className="form-select"
+        &gt;
+          &lt;option value="low"&gt;Low Priority&lt;/option&gt;
+          &lt;option value="medium"&gt;Medium Priority&lt;/option&gt;
+          &lt;option value="high"&gt;High Priority&lt;/option&gt;
+        &lt;/select&gt;
+        
+        &lt;input
+          type="date"
+          value={task.dueDate}
+          onChange={(e) =&gt; setTask({ ...task, dueDate: e.target.value })}
+          className="form-input"
+        /&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  );
+}
+
+// Task Item Component
+function TaskItem({ task, onToggle, onDelete, onEdit, categories }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTask, setEditedTask] = useState(task);
+
+  const handleSave = () =&gt; {
+    onEdit(task.id, editedTask);
+    setIsEditing(false);
+  };
+
+  const getPriorityColor = (priority) =&gt; {
+    const colors = { high: '#dc3545', medium: '#ffc107', low: '#28a745' };
+    return colors[priority] || '#6c757d';
+  };
+
+  const isOverdue = task.dueDate && new Date(task.dueDate) &lt; new Date() && !task.completed;
+  const categoryName = categories.find(cat =&gt; cat.id === task.category)?.name || 'Unknown';
+
+  if (isEditing) {
+    return (
+      &lt;div className="task-item editing"&gt;
+        &lt;input
+          type="text"
+          value={editedTask.title}
+          onChange={(e) =&gt; setEditedTask({ ...editedTask, title: e.target.value })}
+          className="edit-input"
+        /&gt;
+        &lt;div className="edit-controls"&gt;
+          &lt;button onClick={handleSave} className="save-btn"&gt;Save&lt;/button&gt;
+          &lt;button onClick={() =&gt; setIsEditing(false)} className="cancel-btn"&gt;Cancel&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  return (
+    &lt;div className={`task-item ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}&gt;
+      &lt;div className="task-main"&gt;
+        &lt;input
+          type="checkbox"
+          checked={task.completed}
+          onChange={() =&gt; onToggle(task.id)}
+          className="task-checkbox"
+        /&gt;
+        
+        &lt;div className="task-content"&gt;
+          &lt;h3 className="task-title"&gt;{task.title}&lt;/h3&gt;
+          &lt;div className="task-meta"&gt;
+            &lt;span className="task-category"&gt;{categoryName}&lt;/span&gt;
+            &lt;span 
+              className="task-priority"
+              style={{ backgroundColor: getPriorityColor(task.priority) }}
+            &gt;
+              {task.priority}
+            &lt;/span&gt;
+            {task.dueDate && (
+              &lt;span className="task-due-date"&gt;
+                Due: {new Date(task.dueDate).toLocaleDateString()}
+              &lt;/span&gt;
+            )}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="task-actions"&gt;
+        &lt;button onClick={() =&gt; setIsEditing(true)} className="edit-btn"&gt;
+          ✏️
+        &lt;/button&gt;
+        &lt;button onClick={() =&gt; onDelete(task.id)} className="delete-btn"&gt;
+          🗑️
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Filters Component
+function TaskFilters({ filters, onFilterChange, categories }) {
+  return (
+    &lt;div className="task-filters"&gt;
+      &lt;div className="filter-group"&gt;
+        &lt;input
+          type="text"
+          placeholder="Search tasks..."
+          value={filters.search}
+          onChange={(e) =&gt; onFilterChange({ ...filters, search: e.target.value })}
+          className="search-input"
+        /&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="filter-group"&gt;
+        &lt;select
+          value={filters.category}
+          onChange={(e) =&gt; onFilterChange({ ...filters, category: e.target.value })}
+          className="filter-select"
+        &gt;
+          &lt;option value="all"&gt;All Categories&lt;/option&gt;
+          {categories.map(cat =&gt; (
+            &lt;option key={cat.id} value={cat.id}&gt;{cat.name}&lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+        
+        &lt;select
+          value={filters.status}
+          onChange={(e) =&gt; onFilterChange({ ...filters, status: e.target.value })}
+          className="filter-select"
+        &gt;
+          &lt;option value="all"&gt;All Tasks&lt;/option&gt;
+          &lt;option value="active"&gt;Active&lt;/option&gt;
+          &lt;option value="completed"&gt;Completed&lt;/option&gt;
+        &lt;/select&gt;
+        
+        &lt;select
+          value={filters.priority}
+          onChange={(e) =&gt; onFilterChange({ ...filters, priority: e.target.value })}
+          className="filter-select"
+        &gt;
+          &lt;option value="all"&gt;All Priorities&lt;/option&gt;
+          &lt;option value="high"&gt;High Priority&lt;/option&gt;
+          &lt;option value="medium"&gt;Medium Priority&lt;/option&gt;
+          &lt;option value="low"&gt;Low Priority&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Statistics Component
+function TaskStats({ tasks }) {
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(task =&gt; task.completed).length;
+  const activeTasks = totalTasks - completedTasks;
+  const overdueTasks = tasks.filter(task =&gt; 
+    task.dueDate && new Date(task.dueDate) &lt; new Date() && !task.completed
+  ).length;
+  
+  const completionRate = totalTasks &gt; 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  return (
+    &lt;div className="task-stats"&gt;
+      &lt;div className="stat-item"&gt;
+        &lt;span className="stat-number"&gt;{totalTasks}&lt;/span&gt;
+        &lt;span className="stat-label"&gt;Total&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className="stat-item"&gt;
+        &lt;span className="stat-number"&gt;{activeTasks}&lt;/span&gt;
+        &lt;span className="stat-label"&gt;Active&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className="stat-item"&gt;
+        &lt;span className="stat-number"&gt;{completedTasks}&lt;/span&gt;
+        &lt;span className="stat-label"&gt;Completed&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className="stat-item"&gt;
+        &lt;span className="stat-number"&gt;{overdueTasks}&lt;/span&gt;
+        &lt;span className="stat-label"&gt;Overdue&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className="stat-item"&gt;
+        &lt;span className="stat-number"&gt;{completionRate}%&lt;/span&gt;
+        &lt;span className="stat-label"&gt;Complete&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Main Todo App Component
+function TodoApp() {
+  const [tasks, setTasks] = useLocalStorage('tasks', []);
+  const [filters, setFilters] = useState({
+    search: '',
+    category: 'all',
+    status: 'all',
+    priority: 'all'
+  });
+
+  const categories = [
+    { id: 'personal', name: 'Personal' },
+    { id: 'work', name: 'Work' },
+    { id: 'shopping', name: 'Shopping' },
+    { id: 'health', name: 'Health' },
+    { id: 'learning', name: 'Learning' }
+  ];
+
+  const addTask = (newTask) =&gt; {
+    setTasks([...tasks, newTask]);
+  };
+
+  const toggleTask = (taskId) =&gt; {
+    setTasks(tasks.map(task =&gt;
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const deleteTask = (taskId) =&gt; {
+    setTasks(tasks.filter(task =&gt; task.id !== taskId));
+  };
+
+  const editTask = (taskId, updatedTask) =&gt; {
+    setTasks(tasks.map(task =&gt;
+      task.id === taskId ? { ...task, ...updatedTask } : task
+    ));
+  };
+
+  const filteredTasks = tasks.filter(task =&gt; {
+    const matchesSearch = task.title.toLowerCase().includes(filters.search.toLowerCase());
+    const matchesCategory = filters.category === 'all' || task.category === filters.category;
+    const matchesStatus = filters.status === 'all' || 
+      (filters.status === 'completed' && task.completed) ||
+      (filters.status === 'active' && !task.completed);
+    const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
+    
+    return matchesSearch && matchesCategory && matchesStatus && matchesPriority;
+  });
+
+  const sortedTasks = filteredTasks.sort((a, b) =&gt; {
+    // Sort by completion status first (active tasks first)
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+    
+    // Then by priority
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    }
+    
+    // Finally by due date
+    if (a.dueDate && b.dueDate) {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    }
+    
+    return 0;
+  });
+
+  return (
+    &lt;div className="todo-app"&gt;
+      &lt;Header /&gt;
+      
+      &lt;main className="app-main"&gt;
+        &lt;TaskStats tasks={tasks} /&gt;
+        
+        &lt;AddTaskForm onAddTask={addTask} categories={categories} /&gt;
+        
+        &lt;TaskFilters 
+          filters={filters} 
+          onFilterChange={setFilters} 
+          categories={categories} 
+        /&gt;
+        
+        &lt;div className="task-list"&gt;
+          {sortedTasks.length === 0 ? (
+            &lt;div className="empty-state"&gt;
+              {tasks.length === 0 ? (
+                &lt;div&gt;
+                  &lt;h3&gt;🎉 Welcome to your Todo App!&lt;/h3&gt;
+                  &lt;p&gt;Add your first task above to get started.&lt;/p&gt;
+                &lt;/div&gt;
+              ) : (
+                &lt;div&gt;
+                  &lt;h3&gt;🔍 No tasks match your filters&lt;/h3&gt;
+                  &lt;p&gt;Try adjusting your search or filter criteria.&lt;/p&gt;
+                &lt;/div&gt;
+              )}
+            &lt;/div&gt;
+          ) : (
+            sortedTasks.map(task =&gt; (
+              &lt;TaskItem
+                key={task.id}
+                task={task}
+                onToggle={toggleTask}
+                onDelete={deleteTask}
+                onEdit={editTask}
+                categories={categories}
+              /&gt;
+            ))
+          )}
+        &lt;/div&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Main App with Theme Provider
+function App() {
+  return (
+    &lt;ThemeProvider&gt;
+      &lt;TodoApp /&gt;
+    &lt;/ThemeProvider&gt;
+  );
+}
+
+export default App;
+    </div>
+
+    <h2>CSS Styles (TodoApp.css)</h2>
+    <div class="code-block">
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s ease;
+}
+
+body.light {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+body.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.todo-app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+  border-bottom: 2px solid #007bff;
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  color: #007bff;
+}
+
+.theme-toggle {
+  background: none;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background-color: #007bff;
+  transform: scale(1.1);
+}
+
+/* Statistics */
+.task-stats {
+  display: flex;
+  justify-content: space-around;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Add Task Form */
+.add-task-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+body.dark .add-task-form {
+  background: #2d2d2d;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+.task-input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.task-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.add-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-button:hover {
+  background: #218838;
+}
+
+.form-select, .form-input {
+  padding: 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+}
+
+body.dark .form-select,
+body.dark .form-input,
+body.dark .task-input {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+/* Filters */
+.task-filters {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+body.dark .task-filters {
+  background: #2d2d2d;
+}
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.filter-select {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+}
+
+/* Task List */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+body.dark .task-item {
+  background: #2d2d2d;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.task-item.completed {
+  opacity: 0.7;
+}
+
+.task-item.overdue {
+  border-left: 4px solid #dc3545;
+}
+
+.task-main {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.task-checkbox {
+  margin-right: 15px;
+  width: 20px;
+  height: 20px;
+}
+
+.task-content {
+  flex: 1;
+}
+
+.task-title {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+}
+
+.task-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.task-category,
+.task-priority,
+.task-due-date {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.task-category {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.task-priority {
+  color: white;
+}
+
+.task-due-date {
+  background: #17a2b8;
+  color: white;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-btn,
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+  background: #f8f9fa;
+}
+
+.delete-btn:hover {
+  background: #f8d7da;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.empty-state h3 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+/* Editing */
+.task-item.editing {
+  background: #fff3cd;
+}
+
+body.dark .task-item.editing {
+  background: #3d3d2d;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px;
+  border: 2px solid #ffc107;
+  border-radius: 6px;
+  font-size: 1.1rem;
+}
+
+.edit-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .todo-app {
+    padding: 10px;
+  }
+  
+  .app-header h1 {
+    font-size: 2rem;
+  }
+  
+  .task-stats {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .form-row,
+  .filter-group {
+    flex-direction: column;
+  }
+  
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .task-main {
+    width: 100%;
+  }
+  
+  .task-actions {
+    align-self: flex-end;
+  }
+}
+    </div>
+
+    <div class="highlight">
+        <h3>🎯 Key Concepts Demonstrated</h3>
+        <ul>
+            <li><strong>React Hooks:</strong> useState, useEffect, useContext, custom hooks</li>
+            <li><strong>Context API:</strong> Theme management across components</li>
+            <li><strong>Local Storage:</strong> Data persistence between sessions</li>
+            <li><strong>Component Composition:</strong> Breaking down complex UI into reusable components</li>
+            <li><strong>Event Handling:</strong> Form submissions, user interactions</li>
+            <li><strong>Conditional Rendering:</strong> Dynamic UI based on state</li>
+            <li><strong>List Rendering:</strong> Efficient rendering with keys</li>
+            <li><strong>State Management:</strong> Complex state updates and filtering</li>
+        </ul>
+    </div>
+
+    <h2>Deployment Options</h2>
+    <p>Once you've built your todo app, you can deploy it to the web using these platforms:</p>
+
+    <div class="code-block">
+# Build your app for production
+npm run build
+
+# Deploy to Netlify (drag and drop the build folder)
+# Or use Netlify CLI:
+npm install -g netlify-cli
+netlify deploy --prod --dir=build
+
+# Deploy to Vercel
+npm install -g vercel
+vercel --prod
+
+# Deploy to GitHub Pages
+npm install --save-dev gh-pages
+# Add to package.json scripts:
+# "deploy": "gh-pages -d build"
+npm run deploy
+    </div>
+
+    <div class="next-steps">
+        <h3>🚀 Next Steps & Enhancements</h3>
+        <p>Congratulations on completing your todo app! Here are some ideas to take it further:</p>
+        <ul>
+            <li><strong>Add animations:</strong> Use Framer Motion or CSS transitions</li>
+            <li><strong>Implement drag & drop:</strong> Reorder tasks with react-beautiful-dnd</li>
+            <li><strong>Add user authentication:</strong> Firebase Auth or Auth0</li>
+            <li><strong>Cloud synchronization:</strong> Firebase Firestore or Supabase</li>
+            <li><strong>Mobile app:</strong> Convert to React Native</li>
+            <li><strong>PWA features:</strong> Offline support, push notifications</li>
+            <li><strong>Advanced filtering:</strong> Date ranges, custom tags</li>
+            <li><strong>Data visualization:</strong> Charts with Chart.js or D3</li>
+        </ul>
+    </div>
+
+    <div class="congratulations">
+        <h2>🎉 Congratulations!</h2>
+        <p>You've successfully completed the React Fundamentals course and built a complete todo application!</p>
+        
+        <h3>What You've Accomplished:</h3>
+        <ul style="text-align: left; display: inline-block;">
+            <li>✅ Mastered React components and JSX</li>
+            <li>✅ Learned state management with hooks</li>
+            <li>✅ Implemented event handling and forms</li>
+            <li>✅ Built conditional rendering and lists</li>
+            <li>✅ Used Context API for global state</li>
+            <li>✅ Created custom hooks for reusable logic</li>
+            <li>✅ Built a complete, production-ready application</li>
+        </ul>
+        
+        <h3>🎯 You're Now Ready To:</h3>
+        <ul style="text-align: left; display: inline-block;">
+            <li>Build React applications independently</li>
+            <li>Contribute to React projects</li>
+            <li>Learn advanced React patterns</li>
+            <li>Explore the React ecosystem (Next.js, React Router, etc.)</li>
+            <li>Apply for React developer positions</li>
+        </ul>
+        
+        <p><strong>Keep coding, keep learning, and most importantly, keep building amazing things! 🚀</strong></p>
+    </div>
+</body>
+</html>

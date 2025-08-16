@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing React Applications</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .exercise {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .exercise h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .test-types {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 11 of 12</div>
+        <h1>Testing React Applications</h1>
+        <div class="lesson-duration">⏱️ 50 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Understand different types of testing in React</li>
+            <li>Write unit tests with Jest and React Testing Library</li>
+            <li>Test user interactions and component behavior</li>
+            <li>Mock external dependencies and API calls</li>
+            <li>Implement integration and end-to-end tests</li>
+        </ul>
+    </div>
+
+    <div class="test-types">
+        <h3>🧪 Types of Testing</h3>
+        <ul>
+            <li><strong>Unit Tests:</strong> Test individual components in isolation</li>
+            <li><strong>Integration Tests:</strong> Test how components work together</li>
+            <li><strong>End-to-End Tests:</strong> Test complete user workflows</li>
+            <li><strong>Snapshot Tests:</strong> Detect unexpected changes in component output</li>
+        </ul>
+    </div>
+
+    <h2>Setting Up Testing Environment</h2>
+    <p>Create React App comes with Jest and React Testing Library pre-configured:</p>
+
+    <div class="code-block">
+// package.json dependencies (already included in CRA)
+{
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^14.2.0"
+  }
+}
+
+// src/setupTests.js (automatically loaded by Jest)
+import '@testing-library/jest-dom';
+
+// Run tests
+npm test
+
+// Run tests with coverage
+npm test -- --coverage
+
+// Run tests in CI mode
+npm test -- --ci --coverage --watchAll=false
+    </div>
+
+    <h2>Basic Component Testing</h2>
+    <div class="code-block">
+// Button.js - Component to test
+import React from 'react';
+
+function Button({ children, onClick, disabled = false, variant = 'primary' }) {
+  return (
+    &lt;button
+      onClick={onClick}
+      disabled={disabled}
+      className={`btn btn-${variant}`}
+      data-testid="button"
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}
+
+export default Button;
+
+// Button.test.js - Test file
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Button from './Button';
+
+describe('Button Component', () =&gt; {
+  test('renders button with text', () =&gt; {
+    render(&lt;Button&gt;Click me&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button', { name: /click me/i });
+    expect(button).toBeInTheDocument();
+  });
+
+  test('calls onClick when clicked', async () =&gt; {
+    const handleClick = jest.fn();
+    const user = userEvent.setup();
+    
+    render(&lt;Button onClick={handleClick}&gt;Click me&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('is disabled when disabled prop is true', () =&gt; {
+    render(&lt;Button disabled&gt;Disabled Button&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    expect(button).toBeDisabled();
+  });
+
+  test('applies correct CSS class for variant', () =&gt; {
+    render(&lt;Button variant="secondary"&gt;Secondary Button&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('btn-secondary');
+  });
+
+  test('does not call onClick when disabled', async () =&gt; {
+    const handleClick = jest.fn();
+    const user = userEvent.setup();
+    
+    render(&lt;Button onClick={handleClick} disabled&gt;Disabled&lt;/Button&gt;);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+});
+    </div>
+
+    <h2>Testing Forms and User Input</h2>
+    <div class="code-block">
+// LoginForm.js
+import React, { useState } from 'react';
+
+function LoginForm({ onSubmit, isLoading = false }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () =&gt; {
+    const newErrors = {};
+    
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length &lt; 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) =&gt; {
+    e.preventDefault();
+    if (validateForm()) {
+      onSubmit({ email, password });
+    }
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit} data-testid="login-form"&gt;
+      &lt;div&gt;
+        &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
+        &lt;input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) =&gt; setEmail(e.target.value)}
+          aria-describedby={errors.email ? 'email-error' : undefined}
+        /&gt;
+        {errors.email && (
+          &lt;div id="email-error" role="alert"&gt;
+            {errors.email}
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+      
+      &lt;div&gt;
+        &lt;label htmlFor="password"&gt;Password&lt;/label&gt;
+        &lt;input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) =&gt; setPassword(e.target.value)}
+          aria-describedby={errors.password ? 'password-error' : undefined}
+        /&gt;
+        {errors.password && (
+          &lt;div id="password-error" role="alert"&gt;
+            {errors.password}
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+      
+      &lt;button type="submit" disabled={isLoading}&gt;
+        {isLoading ? 'Logging in...' : 'Login'}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+
+export default LoginForm;
+
+// LoginForm.test.js
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import LoginForm from './LoginForm';
+
+describe('LoginForm', () =&gt; {
+  const mockOnSubmit = jest.fn();
+
+  beforeEach(() =&gt; {
+    mockOnSubmit.mockClear();
+  });
+
+  test('renders form fields', () =&gt; {
+    render(&lt;LoginForm onSubmit={mockOnSubmit} /&gt;);
+    
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+  });
+
+  test('submits form with valid data', async () =&gt; {
+    const user = userEvent.setup();
+    render(&lt;LoginForm onSubmit={mockOnSubmit} /&gt;);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByRole('button', { name: /login/i });
+    
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+    
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      password: 'password123'
+    });
+  });
+
+  test('shows validation errors for invalid input', async () =&gt; {
+    const user = userEvent.setup();
+    render(&lt;LoginForm onSubmit={mockOnSubmit} /&gt;);
+    
+    const submitButton = screen.getByRole('button', { name: /login/i });
+    await user.click(submitButton);
+    
+    await waitFor(() =&gt; {
+      expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/password is required/i)).toBeInTheDocument();
+    });
+    
+    expect(mockOnSubmit).not.toHaveBeenCalled();
+  });
+
+  test('shows loading state', () =&gt; {
+    render(&lt;LoginForm onSubmit={mockOnSubmit} isLoading={true} /&gt;);
+    
+    const submitButton = screen.getByRole('button');
+    expect(submitButton).toHaveTextContent(/logging in/i);
+    expect(submitButton).toBeDisabled();
+  });
+
+  test('validates email format', async () =&gt; {
+    const user = userEvent.setup();
+    render(&lt;LoginForm onSubmit={mockOnSubmit} /&gt;);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    const submitButton = screen.getByRole('button', { name: /login/i });
+    
+    await user.type(emailInput, 'invalid-email');
+    await user.click(submitButton);
+    
+    await waitFor(() =&gt; {
+      expect(screen.getByText(/email is invalid/i)).toBeInTheDocument();
+    });
+  });
+});
+    </div>
+
+    <h2>Testing Components with Context</h2>
+    <div class="code-block">
+// UserProfile.js - Component using context
+import React, { useContext } from 'react';
+import { UserContext } from './UserContext';
+
+function UserProfile() {
+  const { user, logout } = useContext(UserContext);
+
+  if (!user) {
+    return &lt;div&gt;Please log in&lt;/div&gt;;
+  }
+
+  return (
+    &lt;div data-testid="user-profile"&gt;
+      &lt;h2&gt;Welcome, {user.name}!&lt;/h2&gt;
+      &lt;p&gt;Email: {user.email}&lt;/p&gt;
+      &lt;button onClick={logout}&gt;Logout&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default UserProfile;
+
+// UserProfile.test.js
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { UserContext } from './UserContext';
+import UserProfile from './UserProfile';
+
+// Test helper to render with context
+function renderWithUserContext(ui, { user = null, logout = jest.fn() } = {}) {
+  const contextValue = { user, logout };
+  
+  return render(
+    &lt;UserContext.Provider value={contextValue}&gt;
+      {ui}
+    &lt;/UserContext.Provider&gt;
+  );
+}
+
+describe('UserProfile', () =&gt; {
+  test('shows login message when user is not logged in', () =&gt; {
+    renderWithUserContext(&lt;UserProfile /&gt;);
+    
+    expect(screen.getByText(/please log in/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('user-profile')).not.toBeInTheDocument();
+  });
+
+  test('shows user information when logged in', () =&gt; {
+    const mockUser = {
+      name: 'John Doe',
+      email: 'john@example.com'
+    };
+    
+    renderWithUserContext(&lt;UserProfile /&gt;, { user: mockUser });
+    
+    expect(screen.getByText(/welcome, john doe/i)).toBeInTheDocument();
+    expect(screen.getByText(/email: john@example.com/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
+  });
+
+  test('calls logout when logout button is clicked', async () =&gt; {
+    const mockUser = { name: 'John Doe', email: 'john@example.com' };
+    const mockLogout = jest.fn();
+    const user = userEvent.setup();
+    
+    renderWithUserContext(&lt;UserProfile /&gt;, { 
+      user: mockUser, 
+      logout: mockLogout 
+    });
+    
+    const logoutButton = screen.getByRole('button', { name: /logout/i });
+    await user.click(logoutButton);
+    
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+  });
+});
+    </div>
+
+    <h2>Mocking API Calls</h2>
+    <div class="code-block">
+// UserList.js - Component that fetches data
+import React, { useState, useEffect } from 'react';
+
+function UserList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () =&gt; {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/users');
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const userData = await response.json();
+      setUsers(userData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return &lt;div&gt;Loading users...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Users&lt;/h2&gt;
+      &lt;ul&gt;
+        {users.map(user =&gt; (
+          &lt;li key={user.id}&gt;
+            {user.name} - {user.email}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default UserList;
+
+// UserList.test.js
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import UserList from './UserList';
+
+// Mock fetch globally
+global.fetch = jest.fn();
+
+describe('UserList', () =&gt; {
+  beforeEach(() =&gt; {
+    fetch.mockClear();
+  });
+
+  test('displays loading state initially', () =&gt; {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () =&gt; []
+    });
+
+    render(&lt;UserList /&gt;);
+    
+    expect(screen.getByText(/loading users/i)).toBeInTheDocument();
+  });
+
+  test('displays users after successful fetch', async () =&gt; {
+    const mockUsers = [
+      { id: 1, name: 'John Doe', email: 'john@example.com' },
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
+    ];
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () =&gt; mockUsers
+    });
+
+    render(&lt;UserList /&gt;);
+
+    await waitFor(() =&gt; {
+      expect(screen.getByText(/users/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/john doe - john@example.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/jane smith - jane@example.com/i)).toBeInTheDocument();
+  });
+
+  test('displays error message when fetch fails', async () =&gt; {
+    fetch.mockRejectedValueOnce(new Error('Network error'));
+
+    render(&lt;UserList /&gt;);
+
+    await waitFor(() =&gt; {
+      expect(screen.getByText(/error: network error/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays error when response is not ok', async () =&gt; {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500
+    });
+
+    render(&lt;UserList /&gt;);
+
+    await waitFor(() =&gt; {
+      expect(screen.getByText(/error: failed to fetch users/i)).toBeInTheDocument();
+    });
+  });
+});
+    </div>
+
+    <h2>Testing Custom Hooks</h2>
+    <div class="code-block">
+// useCounter.js - Custom hook
+import { useState, useCallback } from 'react';
+
+function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = useCallback(() =&gt; {
+    setCount(prev =&gt; prev + 1);
+  }, []);
+
+  const decrement = useCallback(() =&gt; {
+    setCount(prev =&gt; prev - 1);
+  }, []);
+
+  const reset = useCallback(() =&gt; {
+    setCount(initialValue);
+  }, [initialValue]);
+
+  return { count, increment, decrement, reset };
+}
+
+export default useCounter;
+
+// useCounter.test.js
+import { renderHook, act } from '@testing-library/react';
+import useCounter from './useCounter';
+
+describe('useCounter', () =&gt; {
+  test('initializes with default value', () =&gt; {
+    const { result } = renderHook(() =&gt; useCounter());
+    
+    expect(result.current.count).toBe(0);
+  });
+
+  test('initializes with custom value', () =&gt; {
+    const { result } = renderHook(() =&gt; useCounter(10));
+    
+    expect(result.current.count).toBe(10);
+  });
+
+  test('increments count', () =&gt; {
+    const { result } = renderHook(() =&gt; useCounter());
+    
+    act(() =&gt; {
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(1);
+  });
+
+  test('decrements count', () =&gt; {
+    const { result } = renderHook(() =&gt; useCounter(5));
+    
+    act(() =&gt; {
+      result.current.decrement();
+    });
+    
+    expect(result.current.count).toBe(4);
+  });
+
+  test('resets to initial value', () =&gt; {
+    const { result } = renderHook(() =&gt; useCounter(10));
+    
+    act(() =&gt; {
+      result.current.increment();
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(12);
+    
+    act(() =&gt; {
+      result.current.reset();
+    });
+    
+    expect(result.current.count).toBe(10);
+  });
+});
+    </div>
+
+    <h2>Snapshot Testing</h2>
+    <div class="code-block">
+// Card.test.js - Snapshot testing
+import React from 'react';
+import { render } from '@testing-library/react';
+import Card from './Card';
+
+describe('Card Component Snapshots', () =&gt; {
+  test('renders basic card correctly', () =&gt; {
+    const { container } = render(
+      &lt;Card title="Test Card" content="This is test content" /&gt;
+    );
+    
+    expect(container.firstChild).toMatchSnapshot();
+  });
+
+  test('renders card with image correctly', () =&gt; {
+    const { container } = render(
+      &lt;Card 
+        title="Card with Image" 
+        content="Content with image"
+        image="/test-image.jpg"
+      /&gt;
+    );
+    
+    expect(container.firstChild).toMatchSnapshot();
+  });
+
+  // Update snapshots with: npm test -- --updateSnapshot
+});
+    </div>
+
+    <div class="exercise">
+        <h3>🏋️ Exercise: Test a Todo Component</h3>
+        <p>Write comprehensive tests for this Todo component:</p>
+        
+        <div class="code-block">
+// Todo.js
+import React, { useState } from 'react';
+
+function Todo({ todo, onToggle, onDelete, onEdit }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(todo.text);
+
+  const handleSave = () =&gt; {
+    if (editText.trim()) {
+      onEdit(todo.id, editText.trim());
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () =&gt; {
+    setEditText(todo.text);
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      &lt;li className="todo-item editing"&gt;
+        &lt;input
+          type="text"
+          value={editText}
+          onChange={(e) =&gt; setEditText(e.target.value)}
+          onKeyPress={(e) =&gt; e.key === 'Enter' && handleSave()}
+          autoFocus
+        /&gt;
+        &lt;button onClick={handleSave}&gt;Save&lt;/button&gt;
+        &lt;button onClick={handleCancel}&gt;Cancel&lt;/button&gt;
+      &lt;/li&gt;
+    );
+  }
+
+  return (
+    &lt;li className={`todo-item ${todo.completed ? 'completed' : ''}`}&gt;
+      &lt;input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={() =&gt; onToggle(todo.id)}
+      /&gt;
+      &lt;span className="todo-text"&gt;{todo.text}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setIsEditing(true)}&gt;Edit&lt;/button&gt;
+      &lt;button onClick={() =&gt; onDelete(todo.id)}&gt;Delete&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}
+
+export default Todo;
+
+// Your task: Write tests for:
+// 1. Rendering todo item with correct text and completion status
+// 2. Toggling completion status
+// 3. Deleting todo
+// 4. Entering edit mode
+// 5. Saving edited text
+// 6. Canceling edit
+// 7. Saving with Enter key
+// 8. Proper CSS classes applied
+        </div>
+    </div>
+
+    <h2>Testing Best Practices</h2>
+    <ul>
+        <li><strong>Test behavior, not implementation:</strong> Focus on what the user sees and does</li>
+        <li><strong>Use semantic queries:</strong> Prefer getByRole, getByLabelText over getByTestId</li>
+        <li><strong>Test accessibility:</strong> Ensure your components work with screen readers</li>
+        <li><strong>Keep tests simple:</strong> One concept per test</li>
+        <li><strong>Use descriptive test names:</strong> Clearly describe what is being tested</li>
+        <li><strong>Mock external dependencies:</strong> Keep tests isolated and fast</li>
+        <li><strong>Test edge cases:</strong> Empty states, error conditions, loading states</li>
+    </ul>
+
+    <div class="highlight">
+        <strong>🎯 Testing Philosophy:</strong> Write tests that give you confidence in your code. Focus on testing the critical paths and user interactions that matter most to your application.
+    </div>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: Final Project - Todo Application</h3>
+        <p>Put everything together by building a complete, tested, and production-ready todo application that demonstrates all the concepts you've learned.</p>
+    </div>
+</body>
+</html>

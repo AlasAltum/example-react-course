@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Optimization</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .exercise {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .exercise h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 10 of 12</div>
+        <h1>Performance Optimization</h1>
+        <div class="lesson-duration">⏱️ 40 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Understand React's rendering behavior and optimization techniques</li>
+            <li>Master React.memo, useMemo, and useCallback</li>
+            <li>Learn code splitting and lazy loading</li>
+            <li>Implement virtualization for large lists</li>
+            <li>Profile and debug performance issues</li>
+        </ul>
+    </div>
+
+    <h2>Understanding React Rendering</h2>
+    <p>React re-renders components when their state or props change. Understanding when and why re-renders happen is crucial for optimization.</p>
+
+    <div class="code-block">
+// Example: Unnecessary re-renders
+function App() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+
+  // This object is recreated on every render
+  const user = { name, id: 1 };
+
+  return (
+    &lt;div&gt;
+      &lt;input 
+        value={name} 
+        onChange={(e) =&gt; setName(e.target.value)} 
+      /&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Count: {count}
+      &lt;/button&gt;
+      
+      {/* UserProfile re-renders even when only count changes */}
+      &lt;UserProfile user={user} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function UserProfile({ user }) {
+  console.log('UserProfile rendered'); // This logs on every render
+  return &lt;div&gt;Hello, {user.name}!&lt;/div&gt;;
+}
+    </div>
+
+    <h2>React.memo - Preventing Unnecessary Re-renders</h2>
+    <p>React.memo is a higher-order component that memoizes the result and only re-renders if props change.</p>
+
+    <div class="code-block">
+// Optimize with React.memo
+const UserProfile = React.memo(function UserProfile({ user }) {
+  console.log('UserProfile rendered');
+  return &lt;div&gt;Hello, {user.name}!&lt;/div&gt;;
+});
+
+// Custom comparison function
+const UserProfile = React.memo(function UserProfile({ user, theme }) {
+  return &lt;div className={theme}&gt;Hello, {user.name}!&lt;/div&gt;;
+}, (prevProps, nextProps) =&gt; {
+  // Return true if props are equal (skip re-render)
+  return prevProps.user.name === nextProps.user.name &&
+         prevProps.theme === nextProps.theme;
+});
+
+// Better approach: Stable object references
+function App() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+
+  // Memoize the user object
+  const user = useMemo(() =&gt; ({ name, id: 1 }), [name]);
+
+  return (
+    &lt;div&gt;
+      &lt;input 
+        value={name} 
+        onChange={(e) =&gt; setName(e.target.value)} 
+      /&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Count: {count}
+      &lt;/button&gt;
+      
+      {/* Now UserProfile only re-renders when name changes */}
+      &lt;UserProfile user={user} /&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>useMemo - Memoizing Expensive Calculations</h2>
+    <div class="code-block">
+function ExpensiveComponent({ items, filter }) {
+  // Expensive calculation that we want to memoize
+  const expensiveValue = useMemo(() =&gt; {
+    console.log('Calculating expensive value...');
+    return items
+      .filter(item =&gt; item.category === filter)
+      .reduce((sum, item) =&gt; sum + item.price, 0);
+  }, [items, filter]); // Only recalculate when dependencies change
+
+  // Another example: Complex data transformation
+  const processedData = useMemo(() =&gt; {
+    return items
+      .map(item =&gt; ({
+        ...item,
+        displayName: `${item.name} (${item.category})`,
+        isExpensive: item.price &gt; 100
+      }))
+      .sort((a, b) =&gt; b.price - a.price);
+  }, [items]);
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;Total Value: ${expensiveValue}&lt;/h3&gt;
+      &lt;ul&gt;
+        {processedData.map(item =&gt; (
+          &lt;li key={item.id}&gt;
+            {item.displayName} - ${item.price}
+            {item.isExpensive && ' 💎'}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>useCallback - Memoizing Functions</h2>
+    <div class="code-block">
+function TodoApp() {
+  const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState('all');
+
+  // Without useCallback, this function is recreated on every render
+  const handleToggle = useCallback((id) =&gt; {
+    setTodos(prevTodos =&gt;
+      prevTodos.map(todo =&gt;
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  }, []); // No dependencies, function never changes
+
+  const handleDelete = useCallback((id) =&gt; {
+    setTodos(prevTodos =&gt; prevTodos.filter(todo =&gt; todo.id !== id));
+  }, []);
+
+  // Function that depends on filter
+  const handleFilteredAction = useCallback((action) =&gt; {
+    console.log(`Performing ${action} on ${filter} todos`);
+  }, [filter]); // Recreated only when filter changes
+
+  const filteredTodos = useMemo(() =&gt; {
+    switch (filter) {
+      case 'active':
+        return todos.filter(todo =&gt; !todo.completed);
+      case 'completed':
+        return todos.filter(todo =&gt; todo.completed);
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
+
+  return (
+    &lt;div&gt;
+      &lt;FilterButtons filter={filter} onFilterChange={setFilter} /&gt;
+      &lt;TodoList 
+        todos={filteredTodos}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Memoized child component
+const TodoItem = React.memo(function TodoItem({ todo, onToggle, onDelete }) {
+  console.log(`Rendering todo: ${todo.id}`);
+  
+  return (
+    &lt;div&gt;
+      &lt;input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={() =&gt; onToggle(todo.id)}
+      /&gt;
+      &lt;span&gt;{todo.text}&lt;/span&gt;
+      &lt;button onClick={() =&gt; onDelete(todo.id)}&gt;Delete&lt;/button&gt;
+    &lt;/div&gt;
+  );
+});
+    </div>
+
+    <h2>Code Splitting and Lazy Loading</h2>
+    <p>Split your code into smaller chunks that load only when needed:</p>
+
+    <div class="code-block">
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Lazy load components
+const Home = lazy(() =&gt; import('./components/Home'));
+const About = lazy(() =&gt; import('./components/About'));
+const Dashboard = lazy(() =&gt; import('./components/Dashboard'));
+
+// Loading component
+function LoadingSpinner() {
+  return (
+    &lt;div className="loading-spinner"&gt;
+      &lt;div className="spinner"&gt;&lt;/div&gt;
+      &lt;p&gt;Loading...&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return (
+    &lt;Router&gt;
+      &lt;div className="app"&gt;
+        &lt;nav&gt;
+          &lt;Link to="/"&gt;Home&lt;/Link&gt;
+          &lt;Link to="/about"&gt;About&lt;/Link&gt;
+          &lt;Link to="/dashboard"&gt;Dashboard&lt;/Link&gt;
+        &lt;/nav&gt;
+        
+        &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+          &lt;Routes&gt;
+            &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+            &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+            &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+          &lt;/Routes&gt;
+        &lt;/Suspense&gt;
+      &lt;/div&gt;
+    &lt;/Router&gt;
+  );
+}
+
+// Conditional lazy loading
+function ConditionalComponent({ shouldLoadHeavyComponent }) {
+  const [HeavyComponent, setHeavyComponent] = useState(null);
+
+  useEffect(() =&gt; {
+    if (shouldLoadHeavyComponent && !HeavyComponent) {
+      import('./HeavyComponent').then(module =&gt; {
+        setHeavyComponent(() =&gt; module.default);
+      });
+    }
+  }, [shouldLoadHeavyComponent, HeavyComponent]);
+
+  return (
+    &lt;div&gt;
+      {HeavyComponent ? &lt;HeavyComponent /&gt; : &lt;div&gt;Component not loaded&lt;/div&gt;}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Virtualization for Large Lists</h2>
+    <p>For very large lists, render only visible items:</p>
+
+    <div class="code-block">
+// Simple virtualization example
+function VirtualizedList({ items, itemHeight = 50, containerHeight = 400 }) {
+  const [scrollTop, setScrollTop] = useState(0);
+  
+  const startIndex = Math.floor(scrollTop / itemHeight);
+  const endIndex = Math.min(
+    startIndex + Math.ceil(containerHeight / itemHeight) + 1,
+    items.length
+  );
+  
+  const visibleItems = items.slice(startIndex, endIndex);
+  const totalHeight = items.length * itemHeight;
+  const offsetY = startIndex * itemHeight;
+
+  return (
+    &lt;div
+      style={{ height: containerHeight, overflow: 'auto' }}
+      onScroll={(e) =&gt; setScrollTop(e.target.scrollTop)}
+    &gt;
+      &lt;div style={{ height: totalHeight, position: 'relative' }}&gt;
+        &lt;div style={{ transform: `translateY(${offsetY}px)` }}&gt;
+          {visibleItems.map((item, index) =&gt; (
+            &lt;div
+              key={startIndex + index}
+              style={{ height: itemHeight }}
+              className="list-item"
+            &gt;
+              {item.name}
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Usage with react-window (recommended library)
+import { FixedSizeList as List } from 'react-window';
+
+function VirtualizedListWithLibrary({ items }) {
+  const Row = ({ index, style }) =&gt; (
+    &lt;div style={style}&gt;
+      {items[index].name}
+    &lt;/div&gt;
+  );
+
+  return (
+    &lt;List
+      height={400}
+      itemCount={items.length}
+      itemSize={50}
+      width="100%"
+    &gt;
+      {Row}
+    &lt;/List&gt;
+  );
+}
+    </div>
+
+    <h2>Performance Profiling</h2>
+    <div class="code-block">
+// Using React DevTools Profiler
+function ProfiledComponent() {
+  return (
+    &lt;Profiler id="MyComponent" onRender={onRenderCallback}&gt;
+      &lt;MyComponent /&gt;
+    &lt;/Profiler&gt;
+  );
+}
+
+function onRenderCallback(id, phase, actualDuration, baseDuration, startTime, commitTime) {
+  console.log('Profiler data:', {
+    id,           // Component identifier
+    phase,        // "mount" or "update"
+    actualDuration, // Time spent rendering
+    baseDuration,   // Estimated time without memoization
+    startTime,      // When React began rendering
+    commitTime      // When React committed the update
+  });
+}
+
+// Performance measurement
+function usePerformanceMonitor(componentName) {
+  useEffect(() =&gt; {
+    const startTime = performance.now();
+    
+    return () =&gt; {
+      const endTime = performance.now();
+      console.log(`${componentName} render time: ${endTime - startTime}ms`);
+    };
+  });
+}
+
+// Usage
+function MyComponent() {
+  usePerformanceMonitor('MyComponent');
+  
+  // Component logic...
+  return &lt;div&gt;My Component&lt;/div&gt;;
+}
+    </div>
+
+    <div class="warning">
+        <strong>⚠️ Performance Optimization Guidelines:</strong>
+        <ul>
+            <li>Don't optimize prematurely - measure first</li>
+            <li>useMemo and useCallback have their own overhead</li>
+            <li>Only optimize components that actually cause performance issues</li>
+            <li>Consider the complexity of your dependency arrays</li>
+        </ul>
+    </div>
+
+    <div class="exercise">
+        <h3>🏋️ Exercise: Optimize a Slow Component</h3>
+        <p>Here's a component with performance issues. Optimize it:</p>
+        
+        <div class="code-block">
+// Slow component - identify and fix performance issues
+function SlowProductList({ products, searchTerm, sortBy }) {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Problem 1: Expensive calculation on every render
+  const filteredProducts = products
+    .filter(product =&gt; 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (selectedCategory === 'all' || product.category === selectedCategory)
+    )
+    .sort((a, b) =&gt; {
+      if (sortBy === 'price') return a.price - b.price;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+  // Problem 2: Function recreated on every render
+  const handleCategoryChange = (category) =&gt; {
+    setSelectedCategory(category);
+  };
+
+  // Problem 3: Object created on every render
+  const stats = {
+    total: filteredProducts.length,
+    avgPrice: filteredProducts.reduce((sum, p) =&gt; sum + p.price, 0) / filteredProducts.length
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;ProductStats stats={stats} /&gt;
+      &lt;CategoryFilter 
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+      /&gt;
+      &lt;div&gt;
+        {filteredProducts.map(product =&gt; (
+          &lt;ProductCard 
+            key={product.id} 
+            product={product}
+            onAddToCart={() =&gt; console.log('Added', product.id)}
+          /&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Your task: Optimize this component using:
+// - useMemo for expensive calculations
+// - useCallback for event handlers
+// - React.memo for child components
+// - Consider virtualization if the list is very long
+        </div>
+        
+        <p><strong>Optimization checklist:</strong></p>
+        <ul>
+            <li>Memoize the filtered and sorted products</li>
+            <li>Memoize the stats calculation</li>
+            <li>Use useCallback for event handlers</li>
+            <li>Wrap child components with React.memo</li>
+            <li>Consider splitting the component into smaller pieces</li>
+        </ul>
+    </div>
+
+    <h2>Performance Best Practices</h2>
+    <ul>
+        <li><strong>Measure before optimizing:</strong> Use React DevTools Profiler</li>
+        <li><strong>Optimize the right things:</strong> Focus on components that re-render frequently</li>
+        <li><strong>Keep dependency arrays minimal:</strong> Fewer dependencies = better performance</li>
+        <li><strong>Use production builds:</strong> Development mode is slower</li>
+        <li><strong>Consider bundle size:</strong> Use tools like webpack-bundle-analyzer</li>
+        <li><strong>Lazy load heavy components:</strong> Split code at route boundaries</li>
+        <li><strong>Virtualize large lists:</strong> Don't render thousands of items at once</li>
+    </ul>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: Testing React Applications</h3>
+        <p>Learn how to write comprehensive tests for your React components using Jest, React Testing Library, and other testing tools.</p>
+    </div>
+</body>
+</html>

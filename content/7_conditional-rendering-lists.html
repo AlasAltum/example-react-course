@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditional Rendering and Lists</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lesson-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .lesson-duration {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .objectives {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .objectives h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .exercise {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .exercise h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .next-lesson {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-header">
+        <div class="lesson-number">Lesson 7 of 12</div>
+        <h1>Conditional Rendering and Lists</h1>
+        <div class="lesson-duration">⏱️ 30 minutes</div>
+    </div>
+
+    <div class="objectives">
+        <h3>🎯 Learning Objectives</h3>
+        <ul>
+            <li>Master different conditional rendering techniques</li>
+            <li>Learn to render lists efficiently with keys</li>
+            <li>Understand when and how to use different patterns</li>
+            <li>Handle empty states and loading conditions</li>
+            <li>Build dynamic, data-driven interfaces</li>
+        </ul>
+    </div>
+
+    <h2>Conditional Rendering Patterns</h2>
+    <p>React provides several ways to conditionally render content. Let's explore the most common patterns:</p>
+
+    <h3>1. If/Else with Variables</h3>
+    <div class="code-block">
+function WelcomeMessage({ user, isLoggedIn }) {
+  let content;
+  
+  if (isLoggedIn) {
+    content = &lt;h1&gt;Welcome back, {user.name}!&lt;/h1&gt;;
+  } else {
+    content = &lt;h1&gt;Please sign in to continue.&lt;/h1&gt;;
+  }
+  
+  return (
+    &lt;div&gt;
+      {content}
+      &lt;p&gt;Thank you for visiting our site.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h3>2. Ternary Operator</h3>
+    <div class="code-block">
+function StatusMessage({ isOnline }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;User Status&lt;/h2&gt;
+      &lt;p&gt;
+        You are currently {isOnline ? 'online' : 'offline'}
+        {isOnline ? ' 🟢' : ' 🔴'}
+      &lt;/p&gt;
+      
+      {/* Nested ternary (use sparingly) */}
+      &lt;button&gt;
+        {isOnline 
+          ? 'Go Offline' 
+          : 'Connect'
+        }
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h3>3. Logical AND Operator</h3>
+    <div class="code-block">
+function NotificationBanner({ notifications, showBanner }) {
+  return (
+    &lt;div&gt;
+      {/* Show banner only if showBanner is true */}
+      {showBanner && (
+        &lt;div style={{ background: '#f0f8ff', padding: '10px' }}&gt;
+          &lt;h3&gt;Notifications&lt;/h3&gt;
+        &lt;/div&gt;
+      )}
+      
+      {/* Show count only if there are notifications */}
+      {notifications.length &gt; 0 && (
+        &lt;p&gt;You have {notifications.length} new notifications&lt;/p&gt;
+      )}
+      
+      {/* Show message only if no notifications */}
+      {notifications.length === 0 && (
+        &lt;p&gt;No new notifications&lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h3>4. Switch-like Pattern with Objects</h3>
+    <div class="code-block">
+function StatusIcon({ status }) {
+  const statusConfig = {
+    loading: { icon: '⏳', color: '#ffc107', text: 'Loading...' },
+    success: { icon: '✅', color: '#28a745', text: 'Success!' },
+    error: { icon: '❌', color: '#dc3545', text: 'Error occurred' },
+    warning: { icon: '⚠️', color: '#fd7e14', text: 'Warning' }
+  };
+  
+  const config = statusConfig[status] || statusConfig.loading;
+  
+  return (
+    &lt;div style={{ color: config.color }}&gt;
+      &lt;span&gt;{config.icon}&lt;/span&gt;
+      &lt;span&gt;{config.text}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Rendering Lists</h2>
+    <p>The <code>map()</code> function is the standard way to render lists in React:</p>
+
+    <div class="code-block">
+function ProductList({ products }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Our Products&lt;/h2&gt;
+      {products.length === 0 ? (
+        &lt;p&gt;No products available&lt;/p&gt;
+      ) : (
+        &lt;div className="product-grid"&gt;
+          {products.map(product =&gt; (
+            &lt;div key={product.id} className="product-card"&gt;
+              &lt;img src={product.image} alt={product.name} /&gt;
+              &lt;h3&gt;{product.name}&lt;/h3&gt;
+              &lt;p&gt;${product.price}&lt;/p&gt;
+              &lt;button&gt;Add to Cart&lt;/button&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>The Importance of Keys</h2>
+    <p>Keys help React identify which items have changed, been added, or removed:</p>
+
+    <div class="highlight">
+        <strong>🔑 Key Rules:</strong>
+        <ul>
+            <li>Keys must be unique among siblings</li>
+            <li>Keys should be stable (don't use array index if list can change)</li>
+            <li>Use meaningful identifiers when possible</li>
+        </ul>
+    </div>
+
+    <div class="code-block">
+function TodoList({ todos, onToggle, onDelete }) {
+  return (
+    &lt;ul&gt;
+      {todos.map(todo =&gt; (
+        &lt;li 
+          key={todo.id} // ✅ Good - stable, unique ID
+          style={{
+            textDecoration: todo.completed ? 'line-through' : 'none',
+            opacity: todo.completed ? 0.6 : 1
+          }}
+        &gt;
+          &lt;input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={() =&gt; onToggle(todo.id)}
+          /&gt;
+          &lt;span&gt;{todo.text}&lt;/span&gt;
+          &lt;button onClick={() =&gt; onDelete(todo.id)}&gt;
+            Delete
+          &lt;/button&gt;
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+// ❌ Avoid using array index as key when list can change
+// {todos.map((todo, index) => (
+//   <li key={index}>...</li>
+// ))}
+    </div>
+
+    <h2>Complex Conditional Rendering</h2>
+    <p>For complex conditions, consider extracting logic into separate functions:</p>
+
+    <div class="code-block">
+function UserDashboard({ user, isLoading, error }) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        &lt;div className="loading"&gt;
+          &lt;p&gt;Loading user data...&lt;/p&gt;
+          &lt;div className="spinner"&gt;⏳&lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
+    
+    if (error) {
+      return (
+        &lt;div className="error"&gt;
+          &lt;h3&gt;Oops! Something went wrong&lt;/h3&gt;
+          &lt;p&gt;{error.message}&lt;/p&gt;
+          &lt;button onClick={() =&gt; window.location.reload()}&gt;
+            Try Again
+          &lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+    
+    if (!user) {
+      return (
+        &lt;div className="no-user"&gt;
+          &lt;h3&gt;No user data found&lt;/h3&gt;
+          &lt;p&gt;Please log in to view your dashboard.&lt;/p&gt;
+        &lt;/div&gt;
+      );
+    }
+    
+    return (
+      &lt;div className="dashboard"&gt;
+        &lt;h2&gt;Welcome, {user.name}!&lt;/h2&gt;
+        &lt;div className="user-stats"&gt;
+          &lt;p&gt;Email: {user.email}&lt;/p&gt;
+          &lt;p&gt;Member since: {user.joinDate}&lt;/p&gt;
+          &lt;p&gt;Posts: {user.postCount}&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    );
+  };
+  
+  return (
+    &lt;div className="user-dashboard"&gt;
+      {renderContent()}
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <h2>Filtering and Sorting Lists</h2>
+    <div class="code-block">
+function FilterableProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [filterCategory, setFilterCategory] = useState('all');
+  
+  const filteredAndSortedProducts = products
+    .filter(product =&gt; {
+      const matchesSearch = product.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory = filterCategory === 'all' || 
+        product.category === filterCategory;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) =&gt; {
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === 'price') {
+        return a.price - b.price;
+      }
+      return 0;
+    });
+  
+  const categories = [...new Set(products.map(p =&gt; p.category))];
+  
+  return (
+    &lt;div&gt;
+      &lt;div className="filters"&gt;
+        &lt;input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) =&gt; setSearchTerm(e.target.value)}
+        /&gt;
+        
+        &lt;select 
+          value={sortBy} 
+          onChange={(e) =&gt; setSortBy(e.target.value)}
+        &gt;
+          &lt;option value="name"&gt;Sort by Name&lt;/option&gt;
+          &lt;option value="price"&gt;Sort by Price&lt;/option&gt;
+        &lt;/select&gt;
+        
+        &lt;select 
+          value={filterCategory} 
+          onChange={(e) =&gt; setFilterCategory(e.target.value)}
+        &gt;
+          &lt;option value="all"&gt;All Categories&lt;/option&gt;
+          {categories.map(category =&gt; (
+            &lt;option key={category} value={category}&gt;
+              {category}
+            &lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="results"&gt;
+        &lt;p&gt;Showing {filteredAndSortedProducts.length} products&lt;/p&gt;
+        
+        {filteredAndSortedProducts.length === 0 ? (
+          &lt;div className="no-results"&gt;
+            &lt;p&gt;No products match your criteria.&lt;/p&gt;
+            &lt;button onClick={() =&gt; {
+              setSearchTerm('');
+              setFilterCategory('all');
+            }}&gt;
+              Clear Filters
+            &lt;/button&gt;
+          &lt;/div&gt;
+        ) : (
+          &lt;div className="product-list"&gt;
+            {filteredAndSortedProducts.map(product =&gt; (
+              &lt;div key={product.id} className="product-item"&gt;
+                &lt;h3&gt;{product.name}&lt;/h3&gt;
+                &lt;p&gt;Category: {product.category}&lt;/p&gt;
+                &lt;p&gt;Price: ${product.price}&lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+    </div>
+
+    <div class="exercise">
+        <h3>🏋️ Exercise: Build a Task Manager</h3>
+        <p>Create a task manager that demonstrates conditional rendering and list management:</p>
+        
+        <div class="code-block">
+function TaskManager() {
+  const [tasks, setTasks] = useState([
+    { id: 1, title: 'Learn React', completed: false, priority: 'high' },
+    { id: 2, title: 'Build a project', completed: false, priority: 'medium' },
+    { id: 3, title: 'Write tests', completed: true, priority: 'low' }
+  ]);
+  
+  const [filter, setFilter] = useState('all'); // all, active, completed
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  
+  const addTask = (e) =&gt; {
+    e.preventDefault();
+    if (newTaskTitle.trim()) {
+      setTasks([...tasks, {
+        id: Date.now(),
+        title: newTaskTitle,
+        completed: false,
+        priority: 'medium'
+      }]);
+      setNewTaskTitle('');
+    }
+  };
+  
+  const toggleTask = (id) =&gt; {
+    setTasks(tasks.map(task =&gt;
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+  
+  const deleteTask = (id) =&gt; {
+    setTasks(tasks.filter(task =&gt; task.id !== id));
+  };
+  
+  const filteredTasks = tasks.filter(task =&gt; {
+    if (filter === 'active') return !task.completed;
+    if (filter === 'completed') return task.completed;
+    return true;
+  });
+  
+  const getPriorityColor = (priority) =&gt; {
+    const colors = {
+      high: '#dc3545',
+      medium: '#ffc107',
+      low: '#28a745'
+    };
+    return colors[priority] || '#6c757d';
+  };
+  
+  return (
+    &lt;div style={{ maxWidth: '600px', margin: '0 auto' }}&gt;
+      &lt;h2&gt;Task Manager&lt;/h2&gt;
+      
+      {/* Add new task form */}
+      &lt;form onSubmit={addTask} style={{ marginBottom: '20px' }}&gt;
+        &lt;input
+          type="text"
+          value={newTaskTitle}
+          onChange={(e) =&gt; setNewTaskTitle(e.target.value)}
+          placeholder="Add a new task..."
+          style={{ padding: '10px', marginRight: '10px', width: '300px' }}
+        /&gt;
+        &lt;button type="submit"&gt;Add Task&lt;/button&gt;
+      &lt;/form&gt;
+      
+      {/* Filter buttons */}
+      &lt;div style={{ marginBottom: '20px' }}&gt;
+        {['all', 'active', 'completed'].map(filterType =&gt; (
+          &lt;button
+            key={filterType}
+            onClick={() =&gt; setFilter(filterType)}
+            style={{
+              marginRight: '10px',
+              padding: '5px 15px',
+              backgroundColor: filter === filterType ? '#007bff' : '#f8f9fa',
+              color: filter === filterType ? 'white' : 'black',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
+          &gt;
+            {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+          &lt;/button&gt;
+        ))}
+      &lt;/div&gt;
+      
+      {/* Task statistics */}
+      &lt;div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f8f9fa' }}&gt;
+        &lt;p&gt;Total: {tasks.length} | Active: {tasks.filter(t =&gt; !t.completed).length} | Completed: {tasks.filter(t =&gt; t.completed).length}&lt;/p&gt;
+      &lt;/div&gt;
+      
+      {/* Task list */}
+      {filteredTasks.length === 0 ? (
+        &lt;div style={{ textAlign: 'center', padding: '40px' }}&gt;
+          {filter === 'all' && &lt;p&gt;No tasks yet. Add one above!&lt;/p&gt;}
+          {filter === 'active' && &lt;p&gt;No active tasks. Great job! 🎉&lt;/p&gt;}
+          {filter === 'completed' && &lt;p&gt;No completed tasks yet.&lt;/p&gt;}
+        &lt;/div&gt;
+      ) : (
+        &lt;ul style={{ listStyle: 'none', padding: 0 }}&gt;
+          {filteredTasks.map(task =&gt; (
+            &lt;li
+              key={task.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '15px',
+                margin: '10px 0',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                backgroundColor: task.completed ? '#f8f9fa' : 'white'
+              }}
+            &gt;
+              &lt;input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() =&gt; toggleTask(task.id)}
+                style={{ marginRight: '15px' }}
+              /&gt;
+              
+              &lt;div style={{ flex: 1 }}&gt;
+                &lt;span
+                  style={{
+                    textDecoration: task.completed ? 'line-through' : 'none',
+                    opacity: task.completed ? 0.6 : 1
+                  }}
+                &gt;
+                  {task.title}
+                &lt;/span&gt;
+                &lt;div
+                  style={{
+                    display: 'inline-block',
+                    marginLeft: '10px',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    backgroundColor: getPriorityColor(task.priority),
+                    color: 'white'
+                  }}
+                &gt;
+                  {task.priority}
+                &lt;/div&gt;
+              &lt;/div&gt;
+              
+              &lt;button
+                onClick={() =&gt; deleteTask(task.id)}
+                style={{
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  padding: '5px 10px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              &gt;
+                Delete
+              &lt;/button&gt;
+            &lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+        </div>
+        
+        <p><strong>Your Task:</strong> Copy this code and add features like:</p>
+        <ul>
+            <li>Edit task functionality</li>
+            <li>Priority sorting</li>
+            <li>Due dates</li>
+            <li>Task categories</li>
+        </ul>
+    </div>
+
+    <div class="next-lesson">
+        <h3>🎯 Next Up: React Hooks Deep Dive</h3>
+        <p>Now that you've mastered the basics, we'll explore React hooks in depth, including useEffect, useContext, and custom hooks.</p>
+    </div>
+</body>
+</html>
